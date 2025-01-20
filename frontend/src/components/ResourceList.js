@@ -13,6 +13,7 @@ function ResourceList() {
   }, []);
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800">
       {/* Hero Section */}
       <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 shadow-lg">
@@ -42,22 +43,33 @@ function ResourceList() {
       </header>
 
       {/* Resources Section */}
-      <main id="resources" className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-center">Available Resources</h2>
+      <main
+        id="resources"
+        className="max-w-7xl mx-auto px-6 py-12 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 rounded-lg shadow-lg"
+      >
+        <h2 className="text-3xl font-bold mb-8 text-center text-blue-700 drop-shadow-lg">
+          Available Resources
+        </h2>
 
         {resources.length === 0 ? (
           <div className="text-center">
-            <p className="text-gray-500">No resources available at the moment.</p>
+            <p className="text-gray-500">
+              No resources available at the moment.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {resources.map((resource) => (
               <div
                 key={resource.id}
-                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+                className="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-all transform hover:scale-105 hover:translate-y-1 border-2 border-transparent hover:border-blue-300 duration-300 relative"
               >
-                <h3 className="text-xl font-semibold mb-2 text-blue-600">{resource.name}</h3>
-                <p className="text-gray-600 text-sm mb-4">{resource.description || "No description available."}</p>
+                <h3 className="text-xl font-semibold mb-2 text-blue-600 tracking-wide">
+                  {resource.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4 italic">
+                  {resource.description || "No description available."}
+                </p>
                 <p
                   className={`inline-block px-4 py-1 rounded-full text-sm font-semibold ${
                     resource.status === "Available"
@@ -69,11 +81,12 @@ function ResourceList() {
                 >
                   {resource.status}
                 </p>
-                {/* Allocate Button */}
+
+                {/* Allocate Button - Positioned to the right */}
                 {resource.status === "Available" && (
                   <button
-                    onClick={() => navigate(`/allocate/${resource.id}`)}  
-                    className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full shadow-lg hover:bg-blue-700 transition"
+                    onClick={() => navigate(`/allocate/${resource.id}`)}
+                    className="absolute right-6 bottom-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full shadow-lg hover:bg-gradient-to-l hover:from-indigo-600 hover:to-blue-600 transition duration-300 ease-in-out transform hover:scale-105"
                   >
                     Allocate
                   </button>
@@ -82,8 +95,18 @@ function ResourceList() {
             ))}
           </div>
         )}
+
+       
       </main>
+       {/* Footer Section */}
+       <footer className="bg-blue-600 text-white py-6 mt-12 text-center">
+          <p>
+            &copy; {new Date().getFullYear()} Resource Allocation System. All
+            Rights Reserved.
+          </p>
+        </footer>
     </div>
+    </>
   );
 }
 

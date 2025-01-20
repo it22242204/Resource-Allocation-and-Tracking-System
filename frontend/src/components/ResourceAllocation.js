@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 function ResourceAllocation() {
-  const { resourceId } = useParams();  // Get the resource ID from the URL
+  const { resourceId } = useParams(); // Get the resource ID from the URL
   const [resourceData, setResourceData] = useState(null);
-  const [projectId, setProjectId] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [projectId, setProjectId] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +16,8 @@ function ResourceAllocation() {
   useEffect(() => {
     // Fetch resource details by ID (optional)
     if (resourceId) {
-      axios.get(`http://localhost:5000/resources/${resourceId}`)
+      axios
+        .get(`http://localhost:5000/resources/${resourceId}`)
         .then((response) => {
           setResourceData(response.data);
         })
@@ -26,8 +27,10 @@ function ResourceAllocation() {
     }
 
     // Fetch all projects
-    axios.get('http://localhost:5000/projects')
+    axios
+      .get("http://localhost:5000/projects")
       .then((response) => {
+        console.log("Fetched projects:", response.data); // Log project data
         setProjects(response.data);
       })
       .catch((error) => {
@@ -38,18 +41,18 @@ function ResourceAllocation() {
   const allocateResource = () => {
     setLoading(true);
     axios
-      .post('http://localhost:5000/allocations', {
+      .post("http://localhost:5000/allocations", {
         resourceId,
         projectId,
         startTime,
         endTime,
       })
       .then(() => {
-        alert('Resource allocated successfully!');
-        navigate('/');  // Redirect to the homepage after successful allocation
+        alert("Resource allocated successfully!");
+        navigate("/"); // Redirect to the homepage after successful allocation
       })
       .catch((error) => {
-        alert('Error allocating resource: ' + error.message);
+        alert("Error allocating resource: " + error.message);
       })
       .finally(() => {
         setLoading(false);
@@ -70,10 +73,12 @@ function ResourceAllocation() {
           className="space-y-6"
         >
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700">Resource ID:</span>
+            <span className="block text-sm font-medium text-gray-700">
+              Resource ID:
+            </span>
             <input
               type="text"
-              value={resourceId || ''}
+              value={resourceId || ""}
               className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               placeholder="Resource ID"
               readOnly
@@ -82,14 +87,18 @@ function ResourceAllocation() {
 
           {/* Project ID dropdown */}
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700">Project ID:</span>
+            <span className="block text-sm font-medium text-gray-700">
+              Project ID:
+            </span>
             <select
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               required
             >
-              <option value="" disabled>Select a project</option>
+              <option value="" disabled>
+                Select a project
+              </option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.name}
@@ -99,7 +108,9 @@ function ResourceAllocation() {
           </label>
 
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700">Start Time:</span>
+            <span className="block text-sm font-medium text-gray-700">
+              Start Time:
+            </span>
             <input
               type="datetime-local"
               value={startTime}
@@ -110,7 +121,9 @@ function ResourceAllocation() {
           </label>
 
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700">End Time:</span>
+            <span className="block text-sm font-medium text-gray-700">
+              End Time:
+            </span>
             <input
               type="datetime-local"
               value={endTime}
@@ -124,12 +137,12 @@ function ResourceAllocation() {
             type="submit"
             className={`w-full text-white px-4 py-3 rounded-lg font-semibold ${
               loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 transition'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 transition"
             }`}
             disabled={loading}
           >
-            {loading ? 'Allocating...' : 'Allocate Resource'}
+            {loading ? "Allocating..." : "Allocate Resource"}
           </button>
         </form>
       </div>
