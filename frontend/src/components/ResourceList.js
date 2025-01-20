@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function ResourceList() {
   const [resources, setResources] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/resources').then((response) => {
+    axios.get("http://localhost:5000/resources").then((response) => {
       setResources(response.data);
     });
   }, []);
@@ -19,14 +19,23 @@ function ResourceList() {
             Welcome to the Resource Allocation System
           </h1>
           <p className="text-lg font-medium mb-6">
-            Efficiently manage and monitor your organization's resources with ease.
+            Efficiently manage and monitor your organization's resources with
+            ease.
           </p>
-          <a
-            href="#resources"
-            className="inline-block bg-white text-blue-600 px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gray-100 transition"
-          >
-            Explore Resources
-          </a>
+          <div className="flex justify-center gap-4">
+            <a
+              href="#resources"
+              className="inline-block bg-white text-blue-600 px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gray-100 transition"
+            >
+              Explore Resources
+            </a>
+            <a
+              href="utilization"
+              className="inline-block bg-white text-blue-600 px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gray-100 transition"
+            >
+              View Chat Utilization
+            </a>
+          </div>
         </div>
       </header>
 
@@ -38,7 +47,9 @@ function ResourceList() {
 
         {resources.length === 0 ? (
           <div className="text-center">
-            <p className="text-gray-500">No resources available at the moment.</p>
+            <p className="text-gray-500">
+              No resources available at the moment.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -51,15 +62,15 @@ function ResourceList() {
                   {resource.name}
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  {resource.description || 'No description available.'}
+                  {resource.description || "No description available."}
                 </p>
                 <p
                   className={`inline-block px-4 py-1 rounded-full text-sm font-semibold ${
-                    resource.status === 'Available'
-                      ? 'bg-green-100 text-green-700'
-                      : resource.status === 'In Use'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-red-100 text-red-700'
+                    resource.status === "Available"
+                      ? "bg-green-100 text-green-700"
+                      : resource.status === "In Use"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
                   }`}
                 >
                   {resource.status}
@@ -77,7 +88,8 @@ function ResourceList() {
             Need to Allocate Resources?
           </h3>
           <p className="text-lg mb-6">
-            Start assigning your resources to projects and track their usage in real time.
+            Start assigning your resources to projects and track their usage in
+            real time.
           </p>
           <a
             href="#"

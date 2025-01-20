@@ -8,7 +8,6 @@ function App() {
   return (
     <Router>
       <div>
-        <h1>Resource Allocation and Tracking System</h1>
         <Routes>
           <Route path="/" element={<ResourceList />} />
           <Route path="/allocate" element={<ResourceAllocation />} />
