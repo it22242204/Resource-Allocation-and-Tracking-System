@@ -10,7 +10,7 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<ResourceList />} />
-          <Route path="/allocate" element={<ResourceAllocation />} />
+          <Route path="/allocate/:resourceId" element={<ResourceAllocation />} />
           <Route path="/utilization" element={<ResourceUtilization />} />
         </Routes>
       </div>

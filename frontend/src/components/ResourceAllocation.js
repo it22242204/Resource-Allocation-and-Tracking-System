@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function ResourceAllocation() {
-  const [resourceId, setResourceId] = useState('');
+  const { resourceId } = useParams();  // Get the resource ID from the URL
+  const [resourceData, setResourceData] = useState(null);
   const [projectId, setProjectId] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch resource details by ID (optional)
+    if (resourceId) {
+      axios.get(`http://localhost:5000/resources/${resourceId}`).then((response) => {
+        setResourceData(response.data);
+      });
+    }
+  }, [resourceId]);
 
   const allocateResource = () => {
     setLoading(true);
@@ -19,10 +31,7 @@ function ResourceAllocation() {
       })
       .then(() => {
         alert('Resource allocated successfully!');
-        setResourceId('');
-        setProjectId('');
-        setStartTime('');
-        setEndTime('');
+        navigate('/');  // Redirect to the homepage after successful allocation
       })
       .catch((error) => {
         alert('Error allocating resource: ' + error.message);
@@ -49,13 +58,13 @@ function ResourceAllocation() {
             <span className="block text-sm font-medium text-gray-700">Resource ID:</span>
             <input
               type="text"
-              value={resourceId}
-              onChange={(e) => setResourceId(e.target.value)}
+              value={resourceId || ''}
               className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter resource ID"
-              required
+              placeholder="Resource ID"
+              readOnly
             />
           </label>
+
           <label className="block">
             <span className="block text-sm font-medium text-gray-700">Project ID:</span>
             <input
@@ -67,6 +76,7 @@ function ResourceAllocation() {
               required
             />
           </label>
+
           <label className="block">
             <span className="block text-sm font-medium text-gray-700">Start Time:</span>
             <input
@@ -77,6 +87,7 @@ function ResourceAllocation() {
               required
             />
           </label>
+
           <label className="block">
             <span className="block text-sm font-medium text-gray-700">End Time:</span>
             <input
@@ -87,6 +98,7 @@ function ResourceAllocation() {
               required
             />
           </label>
+
           <button
             type="submit"
             className={`w-full text-white px-4 py-3 rounded-lg font-semibold ${

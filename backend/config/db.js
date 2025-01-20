@@ -1,10 +1,12 @@
+require('dotenv').config();  // Load environment variables from .env file
+
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root', // Replace with your MySQL username
-  password: 'ashokan01?', // Replace with your MySQL password
-  database: 'resource_allocation',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 db.connect((err) => {
