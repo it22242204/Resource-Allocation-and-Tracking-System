@@ -17,3 +17,8 @@ CREATE TABLE allocations (
   end_time DATETIME,
   FOREIGN KEY (resource_id) REFERENCES resources(id)
 );
+
+CREATE TABLE projects (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL
+);

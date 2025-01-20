@@ -8,22 +8,37 @@ function ResourceAllocation() {
   const [projectId, setProjectId] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch resource details and project data
   useEffect(() => {
     // Fetch resource details by ID (optional)
     if (resourceId) {
-      axios.get(`http://localhost:5000/resources/${resourceId}`).then((response) => {
-        setResourceData(response.data);
-      });
+      axios.get(`http://localhost:5000/resources/${resourceId}`)
+        .then((response) => {
+          setResourceData(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching resource:", error);
+        });
     }
+
+    // Fetch all projects
+    axios.get('http://localhost:5000/projects')
+      .then((response) => {
+        setProjects(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching projects:", error);
+      });
   }, [resourceId]);
 
   const allocateResource = () => {
     setLoading(true);
     axios
-      .post('http://localhost:5000/allocate', {
+      .post('http://localhost:5000/allocations', {
         resourceId,
         projectId,
         startTime,
@@ -65,16 +80,22 @@ function ResourceAllocation() {
             />
           </label>
 
+          {/* Project ID dropdown */}
           <label className="block">
             <span className="block text-sm font-medium text-gray-700">Project ID:</span>
-            <input
-              type="text"
+            <select
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter project ID"
               required
-            />
+            >
+              <option value="" disabled>Select a project</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label className="block">
