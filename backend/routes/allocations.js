@@ -30,4 +30,14 @@ router.get('/', (req, res) => {
   });
 });
 
+// Get all projects
+router.get('/projects', (req, res) => {
+  const query = 'SELECT id, name FROM projects';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.json(results); 
+  });
+});
+
+
 module.exports = router;

@@ -1,9 +1,6 @@
-// server.js or app.js
-
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const db = require('./config/db');
 const projectRoutes = require('./routes/projects');
 const resourceRoutes = require('./routes/resources');
 const allocationRoutes = require('./routes/allocations');
