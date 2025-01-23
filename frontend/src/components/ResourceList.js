@@ -33,10 +33,10 @@ function ResourceList() {
               Explore Resources
             </a>
             <button
-              onClick={() => navigate("/allocate")}
+              onClick={() => navigate("/utilization")}
               className="inline-block bg-white text-blue-600 px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gray-100 transition"
             >
-              View Resource Allocation
+              View Resource Utilization
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@ function ResourceList() {
         {resources.length === 0 ? (
           <div className="text-center">
             <p className="text-gray-500">
-              No resources available at the moment.
+              No resources available at the moment
             </p>
           </div>
         ) : (
