@@ -54,7 +54,7 @@ function ResourceList() {
         {resources.length === 0 ? (
           <div className="text-center">
             <p className="text-gray-500">
-              No resources available at the moment
+              No resources available at the moment.
             </p>
           </div>
         ) : (
