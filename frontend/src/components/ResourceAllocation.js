@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 function ResourceAllocation() {
-  const { resourceId } = useParams(); // Get the resource ID from the URL
+  const { resourceId } = useParams();
   const [resourceData, setResourceData] = useState(null);
   const [projectId, setProjectId] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -12,52 +12,69 @@ function ResourceAllocation() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch resource details and project data
   useEffect(() => {
-    // Fetch resource details by ID (optional)
-    if (resourceId) {
-      axios
-        .get(`http://localhost:5000/resources/${resourceId}`)
-        .then((response) => {
-          setResourceData(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching resource:", error);
-        });
-    }
+    // Fetch resource details initially
+    const fetchResourceData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/resources/${resourceId}`);
+        const resource = response.data;
 
-    // Fetch all projects
-    axios
-      .get("http://localhost:5000/projects")
-      .then((response) => {
-        console.log("Fetched projects:", response.data); // Log project data
+        // Check if the endTime has passed, and update the status to "Available" if needed
+        if (resource.status === "In Use" && new Date(resource.endTime) <= new Date()) {
+          resource.status = "Available"; // Update local resource status
+          await axios.put(`http://localhost:5000/resources/${resourceId}`, {
+            status: "Available",
+          }); // Update backend status
+        }
+
+        setResourceData(resource);
+      } catch (error) {
+        console.error("Error fetching resource:", error);
+      }
+    };
+
+    // Fetch project data
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/projects");
         setProjects(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching projects:", error);
-      });
+      }
+    };
+
+    // Fetch resource data and projects
+    fetchResourceData();
+    fetchProjects();
+
+    // Polling for real-time status updates every 10 seconds
+    const interval = setInterval(fetchResourceData, 10000);
+
+    // Cleanup the interval on component unmount
+    return () => clearInterval(interval);
   }, [resourceId]);
 
-  const allocateResource = () => {
+  const allocateResource = async () => {
     setLoading(true);
-    axios
-      .post("http://localhost:5000/allocations", {
+    try {
+      await axios.post("http://localhost:5000/allocations", {
         resourceId,
         projectId,
         startTime,
         endTime,
-      })
-      .then(() => {
-        alert("Resource allocated successfully!");
-        navigate("/"); // Redirect to the homepage after successful allocation
-      })
-      .catch((error) => {
-        alert("Error allocating resource: " + error.message);
-      })
-      .finally(() => {
-        setLoading(false);
       });
+      alert("Resource allocated successfully!");
+      navigate("/");
+    } catch (error) {
+      alert("Error allocating resource: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!resourceData) {
+    return <div>Loading resource data...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
@@ -73,77 +90,76 @@ function ResourceAllocation() {
           className="space-y-6"
         >
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700">
-              Resource ID:
-            </span>
+            <span className="block text-sm font-medium text-gray-700">Resource ID:</span>
             <input
               type="text"
               value={resourceId || ""}
               className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Resource ID"
               readOnly
             />
           </label>
 
-          {/* Project ID dropdown */}
-          <label className="block">
-            <span className="block text-sm font-medium text-gray-700">
-              Project ID:
-            </span>
-            <select
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="" disabled>
-                Select a project
-              </option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* Show allocation fields only if resource is available */}
+          {resourceData.status === "Available" ? (
+            <>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Project ID:</span>
+                <select
+                  value={projectId}
+                  onChange={(e) => setProjectId(e.target.value)}
+                  className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="" disabled>
+                    Select a project
+                  </option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <label className="block">
-            <span className="block text-sm font-medium text-gray-700">
-              Start Time:
-            </span>
-            <input
-              type="datetime-local"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Start Time:</span>
+                <input
+                  type="datetime-local"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </label>
 
-          <label className="block">
-            <span className="block text-sm font-medium text-gray-700">
-              End Time:
-            </span>
-            <input
-              type="datetime-local"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">End Time:</span>
+                <input
+                  type="datetime-local"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </label>
 
-          <button
-            type="submit"
-            className={`w-full text-white px-4 py-3 rounded-lg font-semibold ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 transition"
-            }`}
-            disabled={loading}
-          >
-            {loading ? "Allocating..." : "Allocate Resource"}
-          </button>
+              <button
+                type="submit"
+                className={`w-full text-white px-4 py-3 rounded-lg font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 transition"
+                }`}
+                disabled={loading}
+              >
+                {loading ? "Allocating..." : "Allocate Resource"}
+              </button>
+            </>
+          ) : (
+            <p className="text-center text-yellow-500 font-medium">
+              This resource is currently in use until {resourceData.endTime}.
+            </p>
+          )}
         </form>
       </div>
     </div>
