@@ -117,6 +117,13 @@ function ResourceList() {
                     {resource.status}
                   </p>
 
+                  {/* Show End Time if applicable */}
+                  {(resource.status === "In Use" || resource.status === "In Maintenance") && resource.endTime && (
+                    <p className="text-gray-500 text-sm mt-2">
+                      End Time: {new Date(resource.endTime).toLocaleString()}
+                    </p>
+                  )}
+
                   {/* Allocate Button - Positioned to the right */}
                   {resource.status === "Available" && (
                     <button

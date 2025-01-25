@@ -1,4 +1,4 @@
-CREATE DATABASE resource_allocation;
+CREATE DATABASE IF NOT EXISTS resource_allocation;
 USE resource_allocation;
 
 CREATE TABLE resources (
@@ -25,60 +25,32 @@ CREATE TABLE allocations (
   FOREIGN KEY (project_id) REFERENCES projects(id)
 );
 
-DELIMITER //
+INSERT INTO resources (name, description, status, category) VALUES
+('Resource 1', 'High-performance server', 'Available', 'Hardware'),
+('Resource 2', 'Database server', 'Available', 'Hardware'),
+('Resource 3', 'Development workstation', 'In Use', 'Hardware'),
+('Resource 4', 'QA environment', 'Available', 'Software'),
+('Resource 5', 'Production server', 'Under Maintenance', 'Hardware'),
+('Resource 6', 'Network switch', 'Available', 'Hardware'),
+('Resource 7', 'Cloud storage service', 'In Use', 'Service'),
+('Resource 8', 'Email server', 'Available', 'Service'),
+('Resource 9', 'Load balancer', 'Under Maintenance', 'Hardware'),
+('Resource 10', 'Backup solution', 'Available', 'Service');
 
--- Trigger to update resource status after allocation insert
-CREATE TRIGGER update_resource_status_after_insert
-AFTER INSERT ON allocations
-FOR EACH ROW
-BEGIN
-  -- If the allocation status is 'In Use', set the resource status to 'In Use'
-  IF NEW.status = 'In Use' THEN
-    UPDATE resources
-    SET status = 'In Use'
-    WHERE id = NEW.resource_id;
-  END IF;
-END //
+INSERT INTO projects (name) VALUES
+('Project Alpha'),
+('Project Beta'),
+('Project Gamma');
 
--- Trigger to update resource status after allocation update
-CREATE TRIGGER update_resource_status_after_update
-AFTER UPDATE ON allocations
-FOR EACH ROW
-BEGIN
-  -- Update resource status to match the allocation status
-  IF NEW.status = 'In Use' THEN
-    UPDATE resources
-    SET status = 'In Use'
-    WHERE id = NEW.resource_id;
-  ELSEIF NEW.status = 'Available' THEN
-    -- Check if there are other active allocations for the resource
-    IF NOT EXISTS (
-      SELECT 1
-      FROM allocations
-      WHERE resource_id = NEW.resource_id AND status = 'In Use'
-    ) THEN
-      UPDATE resources
-      SET status = 'Available'
-      WHERE id = NEW.resource_id;
-    END IF;
-  END IF;
-END //
+INSERT INTO allocations (resource_id, project_id, start_time, end_time, status) VALUES
+(3, 1, '2025-01-01 08:00:00', '2025-01-15 18:00:00', 'In Use'),
+(7, 2, '2025-01-05 09:00:00', '2025-01-20 17:00:00', 'In Use'),
+(5, 3, '2025-01-10 10:00:00', '2025-01-25 16:00:00', 'Under Maintenance');
 
--- Trigger to update resource status after allocation delete
-CREATE TRIGGER update_resource_status_after_delete
-AFTER DELETE ON allocations
-FOR EACH ROW
-BEGIN
-  -- Check if there are any other active allocations for the resource
-  IF NOT EXISTS (
-    SELECT 1
-    FROM allocations
-    WHERE resource_id = OLD.resource_id AND status = 'In Use'
-  ) THEN
-    UPDATE resources
-    SET status = 'Available'
-    WHERE id = OLD.resource_id;
-  END IF;
-END //
+SELECT * FROM resources;
+SELECT * FROM projects;
+SELECT * FROM allocations;
 
-DELIMITER ;
+DROP TABLE IF EXISTS resources;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS allocations;
