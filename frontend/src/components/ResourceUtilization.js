@@ -3,7 +3,6 @@ import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Register the required components for Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function ResourceUtilization() {
@@ -28,7 +27,7 @@ function ResourceUtilization() {
 
   return (
     <div>
-      {/* Header */}
+      
       <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-4xl font-bold mb-4">
@@ -54,7 +53,7 @@ function ResourceUtilization() {
         </div>
       </header>
 
-      {/* Resource Utilization Section */}
+      
       <section id="utilization" className="p-4 bg-gray-100">
         <h2 className="text-xl font-bold mb-4">Resource Utilization</h2>
         <div className="bg-white p-4 shadow rounded-lg">
@@ -62,7 +61,7 @@ function ResourceUtilization() {
         </div>
       </section>
 
-      {/* Footer */}
+      
       <footer className="bg-gray-800 text-white py-4 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p>&copy; 2025 Resource Allocation System. All Rights Reserved.</p>

@@ -13,18 +13,17 @@ function ResourceAllocation() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch resource details initially
+    
     const fetchResourceData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/resources/${resourceId}`);
         const resource = response.data;
 
-        // Check if the endTime has passed, and update the status to "Available" if needed
         if (resource.status === "In Use" && new Date(resource.endTime) <= new Date()) {
-          resource.status = "Available"; // Update local resource status
+          resource.status = "Available"; 
           await axios.put(`http://localhost:5000/resources/${resourceId}`, {
             status: "Available",
-          }); // Update backend status
+          });
         }
 
         setResourceData(resource);
@@ -33,7 +32,6 @@ function ResourceAllocation() {
       }
     };
 
-    // Fetch project data
     const fetchProjects = async () => {
       try {
         const response = await axios.get("http://localhost:5000/projects");
@@ -43,14 +41,11 @@ function ResourceAllocation() {
       }
     };
 
-    // Fetch resource data and projects
     fetchResourceData();
     fetchProjects();
 
-    // Polling for real-time status updates every 10 seconds
     const interval = setInterval(fetchResourceData, 10000);
 
-    // Cleanup the interval on component unmount
     return () => clearInterval(interval);
   }, [resourceId]);
 
@@ -99,7 +94,6 @@ function ResourceAllocation() {
             />
           </label>
 
-          {/* Show allocation fields only if resource is available */}
           {resourceData.status === "Available" ? (
             <>
               <label className="block">

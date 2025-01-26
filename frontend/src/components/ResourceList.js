@@ -4,15 +4,17 @@ import { useNavigate } from "react-router-dom";
 
 function ResourceList() {
   const [resources, setResources] = useState([]);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [allocation, setAllocation] = useState(null); // State for allocation details
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Function to fetch resources from the API
   const fetchResources = async () => {
     try {
-      console.log("Fetching resources..."); // Debugging log
+      console.log("Fetching resources...");
       const response = await axios.get("http://localhost:5000/resources");
 
-      console.log("Raw resources fetched:", response.data); // Debugging log
+      console.log("Raw resources fetched:", response.data);
 
       const updatedResources = response.data.map((resource) => {
         if (
@@ -20,37 +22,82 @@ function ResourceList() {
           resource.endTime &&
           new Date(resource.endTime) <= new Date()
         ) {
-          console.log(`Resource ${resource.name} status updated to Available.`); // Debugging log
+          console.log(`Resource ${resource.name} status updated to Available.`);
           return { ...resource, status: "Available" };
         }
         return resource;
       });
 
-      console.log("Updated resources:", updatedResources); // Debugging log
+      console.log("Updated resources:", updatedResources);
       setResources(updatedResources);
     } catch (error) {
       console.error("Error fetching resources:", error);
     }
   };
 
+  const fetchAllocation = async (resourceId) => {
+    try {
+      console.log(`Fetching allocation details for resource ID: ${resourceId}...`);
+      const response = await axios.get(`http://localhost:5000/allocations?resource_id=${resourceId}`);
+      
+      const allocation = response.data[0]; // Assuming only one allocation record for each resource_id
+      console.log("Allocation details fetched:", allocation);
+  
+      // Check if the start and end times are valid Date objects
+      const startTime = new Date(allocation.start_time);
+      const endTime = new Date(allocation.end_time);
+  
+      if (startTime.toString() === "Invalid Date" || endTime.toString() === "Invalid Date") {
+        console.error("Invalid date found for allocation times");
+      }
+  
+      // Set the allocation details including valid date parsing
+      setAllocation({
+        ...allocation,
+        startTime: startTime.toString() === "Invalid Date" ? "Start time not available" : startTime.toLocaleString(),
+        endTime: endTime.toString() === "Invalid Date" ? "End time not available" : endTime.toLocaleString()
+      });
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        console.error("Allocation not found for resource ID:", resourceId);
+        setAllocation(null);
+      } else {
+        console.error("Error fetching allocation details:", error);
+      }
+    }
+  };
+  
+  
+
   useEffect(() => {
-    // Initial fetch
     fetchResources();
 
-    // Polling mechanism to periodically update resources
     const interval = setInterval(() => {
-      console.log("Polling for resource updates..."); // Debugging log
+      console.log("Polling for resource updates...");
       fetchResources();
-    }, 60000); // Fetch every 60 seconds
+    }, 60000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, []);
+
+  const handleResourceClick = (resource) => {
+    if (resource.status === "In Use" || resource.status === "Under Maintenance") {
+      console.log("Selected Resource:", resource);
+      setSelectedResource(resource);
+      fetchAllocation(resource.id); // Fetch allocation details when a resource is clicked
+      setIsModalOpen(true);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedResource(null);
+    setAllocation(null); // Clear allocation details when modal is closed
+  };
 
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800">
-        {/* Hero Section */}
         <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 shadow-lg">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h1 className="text-4xl font-bold mb-4">
@@ -77,7 +124,6 @@ function ResourceList() {
           </div>
         </header>
 
-        {/* Resources Section */}
         <main
           id="resources"
           className="max-w-7xl mx-auto px-6 py-12 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 rounded-lg shadow-lg"
@@ -98,6 +144,7 @@ function ResourceList() {
                 <div
                   key={resource.id}
                   className="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-all transform hover:scale-105 hover:translate-y-1 border-2 border-transparent hover:border-blue-300 duration-300 relative"
+                  onClick={() => handleResourceClick(resource)}
                 >
                   <h3 className="text-xl font-semibold mb-2 text-blue-600 tracking-wide">
                     {resource.name}
@@ -116,18 +163,12 @@ function ResourceList() {
                   >
                     {resource.status}
                   </p>
-
-                  {/* Show End Time if applicable */}
-                  {(resource.status === "In Use" || resource.status === "In Maintenance") && resource.endTime && (
-                    <p className="text-gray-500 text-sm mt-2">
-                      End Time: {new Date(resource.endTime).toLocaleString()}
-                    </p>
-                  )}
-
-                  {/* Allocate Button - Positioned to the right */}
                   {resource.status === "Available" && (
                     <button
-                      onClick={() => navigate(`/allocate/${resource.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/allocate/${resource.id}`);
+                      }}
                       className="absolute right-6 bottom-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full shadow-lg hover:bg-gradient-to-l hover:from-indigo-600 hover:to-blue-600 transition duration-300 ease-in-out transform hover:scale-105"
                     >
                       Allocate
@@ -139,7 +180,36 @@ function ResourceList() {
           )}
         </main>
 
-        {/* Footer Section */}
+        {isModalOpen && selectedResource && allocation && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+              <h3 className="text-2xl font-bold mb-4 text-blue-700">
+                {selectedResource.name}
+              </h3>
+              <p className="text-gray-600 mb-2">
+                <strong>Description:</strong>{" "}
+                {selectedResource.description || "No description available."}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Status:</strong> {selectedResource.status}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Start Time:</strong> {new Date(allocation.startTime).toLocaleString()}
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>End Time:</strong> {new Date(allocation.endTime).toLocaleString()}
+              </p>
+
+              <button
+                onClick={closeModal}
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
         <footer className="bg-blue-600 text-white py-6 mt-12 text-center">
           <p>
             &copy; {new Date().getFullYear()} Resource Allocation System. All
