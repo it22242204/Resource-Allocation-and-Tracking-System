@@ -12,12 +12,12 @@ const PORT = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Routes
+
 app.use('/projects', projectRoutes);
 app.use('/resources', resourceRoutes);
 app.use('/allocations', allocationRoutes);
 
-// Start server
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

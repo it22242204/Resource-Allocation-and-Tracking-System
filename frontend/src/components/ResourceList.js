@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function ResourceList() {
   const [resources, setResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
-  const [allocation, setAllocation] = useState(null); // State for allocation details
+  const [allocation, setAllocation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -37,37 +37,33 @@ function ResourceList() {
 
   const fetchAllocation = async (resourceId) => {
     try {
-      console.log(`Fetching allocation details for resource ID: ${resourceId}...`);
-      const response = await axios.get(`http://localhost:5000/allocations?resource_id=${resourceId}`);
-      
-      const allocation = response.data[0]; // Assuming only one allocation record for each resource_id
+      console.log(
+        `Fetching allocation details for resource ID: ${resourceId}...`
+      );
+      const response = await axios.get(
+        `http://localhost:5000/allocations?resource_id=${resourceId}`
+      );
+
+      const allocation = response.data[0]; 
       console.log("Allocation details fetched:", allocation);
-  
-      // Check if the start and end times are valid Date objects
-      const startTime = new Date(allocation.start_time);
-      const endTime = new Date(allocation.end_time);
-  
-      if (startTime.toString() === "Invalid Date" || endTime.toString() === "Invalid Date") {
-        console.error("Invalid date found for allocation times");
-      }
-  
-      // Set the allocation details including valid date parsing
+
+      const startTime = new Date(allocation.start_time).toLocaleString(); 
+      const endTime = new Date(allocation.end_time).toLocaleString();
+
       setAllocation({
         ...allocation,
-        startTime: startTime.toString() === "Invalid Date" ? "Start time not available" : startTime.toLocaleString(),
-        endTime: endTime.toString() === "Invalid Date" ? "End time not available" : endTime.toLocaleString()
+        startTime,
+        endTime,
       });
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        console.error("Allocation not found for resource ID:", resourceId);
+        console.error("No allocation found for this resource.");
         setAllocation(null);
       } else {
         console.error("Error fetching allocation details:", error);
       }
     }
   };
-  
-  
 
   useEffect(() => {
     fetchResources();
@@ -81,10 +77,13 @@ function ResourceList() {
   }, []);
 
   const handleResourceClick = (resource) => {
-    if (resource.status === "In Use" || resource.status === "Under Maintenance") {
+    if (
+      resource.status === "In Use" ||
+      resource.status === "Under Maintenance"
+    ) {
       console.log("Selected Resource:", resource);
       setSelectedResource(resource);
-      fetchAllocation(resource.id); // Fetch allocation details when a resource is clicked
+      fetchAllocation(resource.id);
       setIsModalOpen(true);
     }
   };
@@ -92,7 +91,7 @@ function ResourceList() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedResource(null);
-    setAllocation(null); // Clear allocation details when modal is closed
+    setAllocation(null);
   };
 
   return (
@@ -191,15 +190,14 @@ function ResourceList() {
                 {selectedResource.description || "No description available."}
               </p>
               <p className="text-gray-600 mb-2">
-                <strong>Status:</strong> {selectedResource.status}
+                <strong>Status:</strong> {allocation.status}
               </p>
               <p className="text-gray-600 mb-2">
-                <strong>Start Time:</strong> {new Date(allocation.startTime).toLocaleString()}
+                <strong>Start Time:</strong> {allocation.startTime}
               </p>
               <p className="text-gray-600 mb-2">
-                <strong>End Time:</strong> {new Date(allocation.endTime).toLocaleString()}
+                <strong>End Time:</strong> {allocation.endTime}
               </p>
-
               <button
                 onClick={closeModal}
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
