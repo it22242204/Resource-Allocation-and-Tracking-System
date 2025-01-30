@@ -52,18 +52,16 @@ function ResourceList() {
     try {
       console.log(`Fetching allocation details for resource ID: ${resourceId}...`);
       const response = await axios.get(`http://localhost:5000/allocations?resource_id=${resourceId}`);
-
+  
       if (response.data.length > 0) {
-        const allocation = response.data[0];
-        console.log("Allocation details fetched:", allocation);
-
+        const allocation = response.data[0]; // Ensure it's the latest allocation
+  
         setAllocation({
           ...allocation,
-          startTime: new Date(allocation.start_time).toLocaleString(),
-          endTime: new Date(allocation.end_time).toLocaleString(),
+          startTime: new Date(allocation.start_time).toISOString().slice(0, 16).replace("T", " "),
+          endTime: new Date(allocation.end_time).toISOString().slice(0, 16).replace("T", " "),
         });
       } else {
-        console.error("No allocation found for this resource.");
         setAllocation(null);
       }
     } catch (error) {
@@ -71,6 +69,7 @@ function ResourceList() {
       setAllocation(null);
     }
   };
+  
 
   useEffect(() => {
     fetchResources();
@@ -99,6 +98,16 @@ function ResourceList() {
     setIsModalOpen(false);
     setSelectedResource(null);
     setAllocation(null);
+  };
+
+
+  const formatDate = (isoString) => {
+    const options = { 
+      year: 'numeric', month: '2-digit', day: '2-digit', 
+      hour: '2-digit', minute: '2-digit', 
+      hour12: false, timeZone: 'UTC' 
+    };
+    return new Intl.DateTimeFormat('en-GB', options).format(new Date(isoString)).replace(',', '');
   };
 
   return (
@@ -178,9 +187,9 @@ function ResourceList() {
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
             <h3 className="text-2xl font-bold mb-4 text-blue-700">{selectedResource.name}</h3>
-            <p className="text-gray-600 mb-2"><strong>Status:</strong> {allocation.status}</p>
-            <p className="text-gray-600 mb-2"><strong>Start Time:</strong> {allocation.startTime}</p>
-            <p className="text-gray-600 mb-2"><strong>End Time:</strong> {allocation.endTime}</p>
+            <p className="text-gray-600 mb-2"><strong>Status:</strong> {selectedResource.status}</p>
+            <p className="text-gray-600 mb-2"><strong>Start Time:</strong> {formatDate(allocation.start_time)}</p>
+            <p className="text-gray-600 mb-2"><strong>End Time:</strong> {formatDate(allocation.end_time)}</p>
             <button onClick={closeModal} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition">Close</button>
           </div>
         </div>
