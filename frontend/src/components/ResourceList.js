@@ -54,12 +54,12 @@ function ResourceList() {
       const response = await axios.get(`http://localhost:5000/allocations?resource_id=${resourceId}`);
   
       if (response.data.length > 0) {
-        const allocation = response.data[0]; // Ensure it's the latest allocation
+        const allocation = response.data[0]; 
   
         setAllocation({
           ...allocation,
-          startTime: new Date(allocation.start_time).toISOString().slice(0, 16).replace("T", " "),
-          endTime: new Date(allocation.end_time).toISOString().slice(0, 16).replace("T", " "),
+          startTime: formatDate(allocation.start_time),
+          endTime: formatDate(allocation.end_time),
         });
       } else {
         setAllocation(null);
@@ -69,6 +69,20 @@ function ResourceList() {
       setAllocation(null);
     }
   };
+  
+  const formatDate = (dateString) => {
+    const date = new Date(dateString + "Z"); // Ensure it's treated as UTC
+    return date.toLocaleString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "UTC", // Ensure consistency in displayed time
+    });
+  };
+  
   
 
   useEffect(() => {
@@ -101,16 +115,17 @@ function ResourceList() {
   };
 
 
-  const formatDate = (isoString) => {
-    const options = { 
-      year: 'numeric', month: '2-digit', day: '2-digit', 
-      hour: '2-digit', minute: '2-digit', 
-      hour12: false, timeZone: 'UTC' 
-    };
-    return new Intl.DateTimeFormat('en-GB', options).format(new Date(isoString)).replace(',', '');
-  };
+  // const formatDate = (isoString) => {
+  //   const options = { 
+  //     year: 'numeric', month: '2-digit', day: '2-digit', 
+  //     hour: '2-digit', minute: '2-digit', 
+  //     hour12: false, timeZone: 'UTC' 
+  //   };
+  //   return new Intl.DateTimeFormat('en-GB', options).format(new Date(isoString)).replace(',', '');
+  // };
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800">
       <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 text-center">
@@ -194,7 +209,13 @@ function ResourceList() {
           </div>
         </div>
       )}
+      <footer className="bg-gray-800 text-white py-4 mt-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <p>&copy; 2025 Resource Allocation System. All Rights Reserved.</p>
+        </div>
+      </footer>
     </div>
+    </>
   );
 }
 

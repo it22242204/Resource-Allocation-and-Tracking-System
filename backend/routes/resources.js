@@ -1,65 +1,64 @@
 const express = require('express');
-const db = require('../config/db');
+const db = require('../config/db'); // Import the database connection pool
 const router = express.Router();
 
-// Get all resources
-router.get('/', (req, res) => {
-  const query = 'SELECT * FROM resources';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("An internal server error occurred.");
+// ✅ Get all resources (async/await)
+router.get('/', async (req, res) => {
+    try {
+        const [results] = await db.query('SELECT * FROM resources');
+        res.json(results);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("An internal server error occurred.");
     }
-    res.json(results);
-  });
 });
 
-// Get resource by ID
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
+// ✅ Get resource by ID (async/await)
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
 
-  if (isNaN(id)) {
-    return res.status(400).send("Invalid resource ID.");
-  }
+    if (isNaN(id)) {
+        return res.status(400).send("Invalid resource ID.");
+    }
 
-  const query = 'SELECT * FROM resources WHERE id = ?';
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("An internal server error occurred.");
+    try {
+        const [results] = await db.query('SELECT * FROM resources WHERE id = ?', [id]);
+
+        if (results.length === 0) {
+            return res.status(404).send("Resource not found.");
+        }
+        res.json(results[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("An internal server error occurred.");
     }
-    if (results.length === 0) {
-      return res.status(404).send("Resource not found.");
-    }
-    res.json(results[0]);
-  });
 });
 
-// Update resource status
-router.put('/:id/status', (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+// ✅ Update resource status (async/await)
+router.put('/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  if (isNaN(id)) {
-    return res.status(400).send("Invalid resource ID.");
-  }
-
-  const allowedStatuses = ["Available", "In Use", "Maintenance"];
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).send("Invalid status value.");
-  }
-
-  const query = 'UPDATE resources SET status = ? WHERE id = ?';
-  db.query(query, [status, id], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Failed to update resource status.");
+    if (isNaN(id)) {
+        return res.status(400).send("Invalid resource ID.");
     }
-    if (results.affectedRows === 0) {
-      return res.status(404).send("Resource not found.");
+
+    const allowedStatuses = ["Available", "In Use", "Maintenance"];
+    if (!allowedStatuses.includes(status)) {
+        return res.status(400).send("Invalid status value.");
     }
-    res.send("Resource status updated successfully.");
-  });
+
+    try {
+        const [results] = await db.query('UPDATE resources SET status = ? WHERE id = ?', [status, id]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).send("Resource not found.");
+        }
+        res.send("Resource status updated successfully.");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Failed to update resource status.");
+    }
 });
 
 module.exports = router;

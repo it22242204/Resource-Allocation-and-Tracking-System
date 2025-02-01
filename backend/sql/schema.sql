@@ -53,6 +53,6 @@ SELECT * FROM resources;
 SELECT * FROM projects;
 SELECT * FROM allocations;
 
-DROP TABLE IF EXISTS resources;
-DROP TABLE IF EXISTS projects;
-DROP TABLE IF EXISTS allocations;
+-- DROP TABLE IF EXISTS resources;
+-- DROP TABLE IF EXISTS projects;
+-- DROP TABLE IF EXISTS allocations;
