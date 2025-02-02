@@ -1,8 +1,8 @@
 const express = require('express');
-const db = require('../config/db'); // Import the database connection pool
+const db = require('../config/db'); 
 const router = express.Router();
 
-// ✅ Get all projects (async/await)
+
 router.get('/', async (req, res) => {
     try {
         const [results] = await db.query('SELECT id, name FROM projects');

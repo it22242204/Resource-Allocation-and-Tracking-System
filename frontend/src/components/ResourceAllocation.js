@@ -79,7 +79,7 @@ function ResourceAllocation() {
           <span className="text-gray-600 font-medium">Status:</span>
           <select name="status" value={form.status} onChange={handleChange}
             className="w-full p-3 border rounded-lg mt-1 focus:ring focus:ring-blue-300">
-            <option value="Available">Available</option>
+            <option value="Available">Available</option> 
             <option value="In Use">In Use</option>
           </select>
         </label>
@@ -113,7 +113,6 @@ function ResourceAllocation() {
         </button>
       </div>
     </div>
-    {/* Footer */}
     <footer className="bg-gray-800 text-white py-4 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p>&copy; 2025 Resource Allocation System. All Rights Reserved.</p>

@@ -1,8 +1,8 @@
 const express = require('express');
-const db = require('../config/db'); // Import the database connection pool
+const db = require('../config/db');
 const router = express.Router();
 
-// ✅ Get all resources (async/await)
+
 router.get('/', async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM resources');
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ✅ Get resource by ID (async/await)
+
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
@@ -34,7 +34,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// ✅ Update resource status (async/await)
+
 router.put('/:id/status', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;

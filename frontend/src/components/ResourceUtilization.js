@@ -12,19 +12,19 @@ function ResourceUtilization() {
     const fetchUtilizationData = async () => {
         try {
             console.log("Fetching all utilization data...");
-            const response = await axios.get('http://localhost:5000/allocations'); // No params
+            const response = await axios.get('http://localhost:5000/allocations');
             console.log("Utilization data fetched:", response.data);
 
-            // Ensure the data is an array
+            
             if (Array.isArray(response.data)) {
                 setUtilizationData(response.data);
             } else {
                 console.error("Expected an array but got:", response.data);
-                setUtilizationData([]); // Set to an empty array if the data is invalid
+                setUtilizationData([]); 
             }
         } catch (error) {
             console.error("Error fetching utilization data:", error);
-            setUtilizationData([]); // Set to an empty array on error
+            setUtilizationData([]);
         }
     };
 
@@ -44,7 +44,7 @@ function ResourceUtilization() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800">
-      {/* Header Section */}
+      
       <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-4xl font-bold mb-4">Resource Allocation System</h1>
@@ -66,7 +66,7 @@ function ResourceUtilization() {
         </div>
       </header>
 
-      {/* Utilization Chart */}
+      
       <section id="utilization" className="max-w-7xl mx-auto px-6 py-12 bg-white rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">Resource Utilization</h2>
         <div className="bg-white p-6 shadow-lg rounded-lg">
@@ -74,7 +74,7 @@ function ResourceUtilization() {
         </div>
       </section>
 
-      {/* Footer */}
+      
       <footer className="bg-gray-800 text-white py-4 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p>&copy; 2025 Resource Allocation System. All Rights Reserved.</p>
